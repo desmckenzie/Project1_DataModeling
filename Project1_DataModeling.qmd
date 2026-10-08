@@ -5,4 +5,19 @@ format: pdf
 editor: visual
 ---
 
-## 
+# 1. Introduction
+LEGO sets are a global toy brand and a major collector's market, understanding what drives the price of a LEGO set has practical relevance for consumers, collectors, and manufacturers. The Brickset dataset offers a rich opportunity to explore how features related to price impact the market. By analyzing these variables and applying model selection techniques, the goal is to identify the most influential predictors of LEGO set price and construct a model that prioritizes not only predictive accuracy but also interpretability. This analysis will also allow us to examine larger patterns in LEGO set design and pricing across themes and release years.
+
+# 2. Research Questions
+
+The Brickset LEGO dataset provides detailed information about LEGO sets including price, piece count, themes, year released, and other characteristics. Because LEGO sets vary widely in complexity and price or market value, this dataset offers an opportunity to explore what factors drive the price of a set and whether these relationships can be modeled effectively.
+
+Our primary research question is:
+
+**1. What factors most strongly influence the retails price of a LEGO set?**
+
+To support this, we also consider several smaller questions - Does piece count explain most of the variation in price? - Are there certain themes that are consistently more expensive than others? - Does the year of release influence the price after controlling for all other variables?
+
+To address these questions, multiple linear regression, best subsets selection, and stepwise regression to identify the most influential predictors and construct a final model balances simplicity and predictive accuracy.
+
+
