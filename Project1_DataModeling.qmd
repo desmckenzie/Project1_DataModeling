@@ -1,0 +1,8 @@
+---
+title: "Project1"
+author: "Destiny McKenzie and Lily Nathan"
+format: pdf
+editor: visual
+---
+
+## 
