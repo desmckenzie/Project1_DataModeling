@@ -9,19 +9,20 @@ editor: visual
 
 LEGO sets are a global toy brand and a major collector's market, understanding what drives the price of a LEGO set has practical relevance for consumers, collectors, and manufacturers. The Brickset dataset offers a rich opportunity to explore how features related to price impact the market. By analyzing these variables and applying model selection techniques, the goal is to identify the most influential predictors of LEGO set price and construct a model that prioritizes not only predictive accuracy but also interpretability. This analysis will also allow us to examine larger patterns in LEGO set design and pricing across themes and release years.
 
-# 2. Research Questions
+## 2. Research Questions
+
 The Brickset LEGO dataset provides detailed information about LEGO sets including price, piece count, themes, year released, and other characteristics. Because LEGO sets vary widely in complexity and price or market value, this dataset offers an opportunity to explore what factors drive the price of a set and whether these relationships can be modeled effectively.
 
 Our primary research question is:
- 
+
 **1. What factors most strongly influence the retails price of a LEGO set?**
- 
+
 To support this, we also consider several smaller questions - Does piece count explain most of the variation in price? - Are there certain themes that are consistently more expensive than others? - Does the year of release influence the price after controlling for all other variables?
 
 To address these questions, multiple linear regression, best subsets selection, and stepwise regression to identify the most influential predictors and construct a final model balances simplicity and predictive accuracy.
- 
- 
-## Data Description
+
+## 3. Data Description
+
 ```{r}
 variable_table <- data.frame(
   Variable = c(
@@ -64,6 +65,10 @@ variable_table
 ## Data Cleaning and Processing
 Identifying missing value:
 ```{r}
+#load data and read csv
+df <- read.csv("2025.csv")
+
+#create a table that counts all the missing data
 variables <- c(
   "US_retailPrice",
   "pieces",
@@ -82,13 +87,14 @@ variables <- c(
 
 missing_table <- data.frame(
   Variable = variables,
-  Missing = colSums(is.na(data[variables]))
+  Missing = colSums(is.na(df[variables]))
 )
 
 missing_table
 ```
 
 ```{r}
+#create a new table that omits all the missing data
 variables <- c(
   "US_retailPrice",
   "pieces",
@@ -105,14 +111,15 @@ variables <- c(
   "category"
 )
 
-data_complete <- data[complete.cases(data[variables]), ]
-nrow(data)
+data_complete <- df[complete.cases(df[variables]), ]
+nrow(df)
 nrow(data_complete)
 colSums(is.na(data_complete[variables]))
 ```
 
 Once identifying the predictor variables for our research question, we created a table that would look into how many missing values each predictor variable had. After identifying how many data points had missing values, we created a new data set, named data_complete, containing only LEGO sets with complete predictor variable values. This allows us to make consistent comparisons between sets and prevents missing values from affecting our statistical analyses or limiting the observations available for certain calculations.
 
+<<<<<<< HEAD
 ```{r}
 quantitative_vars <- c(
   "US_retailPrice",
@@ -164,3 +171,10 @@ price_outliers[, c("name", "US_retailPrice")]
 ```
 After identifying potential outliers in the LEGO set data, we decided to retain these observations rather than remove them. The outliers represent LEGO sets with unusually high or low values for variables such as price, number of pieces, or other characteristics, but these values are not necessarily errors. In fact, extreme observations may reflect legitimate differences between LEGO sets, such as large collector sets, specialized sets, or particularly expensive products. Removing these observations could therefore eliminate meaningful variation from the dataset and make our analysis less representative of the full range of LEGO products.
 As the goal of our analysis is to understand patterns across LEGO sets as they actually exist, we believe it is more appropriate to keep legitimate outliers and account for their influence when interpreting our results. We will therefore retain the outliers while recognizing that they may have a greater effect on measures such as the mean and on statistical relationships between variables. This approach allows us to preserve the integrity of the original dataset while distinguishing unusual but valid observations from potential data-entry errors.
+=======
+## 4. Data Cleaning and Processing
+
+## 5. Exploratory Data Analysis
+
+## 6. Best Subsets Regression 
+>>>>>>> 186abadcb94712b9105f0fafe2b8cb4129a936d2
