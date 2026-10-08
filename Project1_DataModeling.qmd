@@ -61,7 +61,8 @@ variable_table <- data.frame(
 variable_table
 
 ```
-
+## Data Cleaning and Processing
+Identifying missing value:
 ```{r}
 variables <- c(
   "US_retailPrice",
@@ -112,4 +113,54 @@ colSums(is.na(data_complete[variables]))
 
 Once identifying the predictor variables for our research question, we created a table that would look into how many missing values each predictor variable had. After identifying how many data points had missing values, we created a new data set, named data_complete, containing only LEGO sets with complete predictor variable values. This allows us to make consistent comparisons between sets and prevents missing values from affecting our statistical analyses or limiting the observations available for certain calculations.
 
-## Data Cleaning and Processing
+```{r}
+quantitative_vars <- c(
+  "US_retailPrice",
+  "pieces",
+  "minifigs",
+  "weight",
+  "height",
+  "width",
+  "depth",
+  "agerange_min",
+  "rating",
+  "reviewCount"
+)
+
+outlier_table <- data.frame(
+  Variable = quantitative_vars,
+  Q1 = sapply(data_complete[quantitative_vars], quantile, probs = 0.25),
+  Q3 = sapply(data_complete[quantitative_vars], quantile, probs = 0.75)
+)
+
+outlier_table$IQR <- outlier_table$Q3 - outlier_table$Q1
+outlier_table$Lower_Bound <- outlier_table$Q1 - 1.5 * outlier_table$IQR
+outlier_table$Upper_Bound <- outlier_table$Q3 + 1.5 * outlier_table$IQR
+
+
+outlier_table$Number_of_Outliers <- sapply(
+  1:length(quantitative_vars),
+  function(i) {
+    x <- data_complete[[quantitative_vars[i]]]
+    sum(x < outlier_table$Lower_Bound[i] |
+        x > outlier_table$Upper_Bound[i])
+  }
+)
+
+outlier_table
+
+```
+```{r}
+price_outliers <- data_complete[
+  data_complete$US_retailPrice < 
+    quantile(data_complete$US_retailPrice, 0.25) -
+    1.5 * IQR(data_complete$US_retailPrice) |
+  data_complete$US_retailPrice >
+    quantile(data_complete$US_retailPrice, 0.75) +
+    1.5 * IQR(data_complete$US_retailPrice),
+]
+
+price_outliers[, c("name", "US_retailPrice")]
+```
+After identifying potential outliers in the LEGO set data, we decided to retain these observations rather than remove them. The outliers represent LEGO sets with unusually high or low values for variables such as price, number of pieces, or other characteristics, but these values are not necessarily errors. In fact, extreme observations may reflect legitimate differences between LEGO sets, such as large collector sets, specialized sets, or particularly expensive products. Removing these observations could therefore eliminate meaningful variation from the dataset and make our analysis less representative of the full range of LEGO products.
+As the goal of our analysis is to understand patterns across LEGO sets as they actually exist, we believe it is more appropriate to keep legitimate outliers and account for their influence when interpreting our results. We will therefore retain the outliers while recognizing that they may have a greater effect on measures such as the mean and on statistical relationships between variables. This approach allows us to preserve the integrity of the original dataset while distinguishing unusual but valid observations from potential data-entry errors.
