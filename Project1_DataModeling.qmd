@@ -5,19 +5,90 @@ format: pdf
 editor: visual
 ---
 
-# 1. Introduction
-LEGO sets are a global toy brand and a major collector's market, understanding what drives the price of a LEGO set has practical relevance for consumers, collectors, and manufacturers. The Brickset dataset offers a rich opportunity to explore how features related to price impact the market. By analyzing these variables and applying model selection techniques, the goal is to identify the most influential predictors of LEGO set price and construct a model that prioritizes not only predictive accuracy but also interpretability. This analysis will also allow us to examine larger patterns in LEGO set design and pricing across themes and release years.
+## 
+```{r}
+variable_table <- data.frame(
+  Variable = c(
+    "US_retailPrice", "pieces", "minifigs", "weight",
+    "height", "width", "depth", "agerange_min",
+    "rating", "reviewCount", "theme", "themeGroup", "category"
+  ),
+  
+  Role = c(
+    "Response",
+    rep("Quantitative Predictor", 9),
+    rep("Categorical Predictor", 3)
+  ),
+  
+  Data_Type = c(
+    "Numeric", "Numeric", "Numeric", "Numeric", "Numeric",
+    "Numeric", "Numeric", "Numeric", "Numeric", "Numeric",
+    "Categorical", "Categorical", "Categorical"
+  ),
+  
+  Description = c(
+    "Original U.S. retail price of the LEGO set in U.S. dollars",
+    "Total number of LEGO pieces",
+    "Number of minifigures included in the set",
+    "Weight of the LEGO set",
+    "Height of the LEGO set",
+    "Width of the LEGO set",
+    "Depth of the LEGO set",
+    "Minimum recommended age for the set",
+    "Average user rating for the set",
+    "Number of user reviews",
+    "Specific LEGO theme associated with the set",
+    "Broader grouping of LEGO themes",
+    "Category or type of LEGO set"
+  )
+)
+variable_table
 
-# 2. Research Questions
+```
+```{r}
+variables <- c(
+  "US_retailPrice",
+  "pieces",
+  "minifigs",
+  "weight",
+  "height",
+  "width",
+  "depth",
+  "agerange_min",
+  "rating",
+  "reviewCount",
+  "theme",
+  "themeGroup",
+  "category"
+)
 
-The Brickset LEGO dataset provides detailed information about LEGO sets including price, piece count, themes, year released, and other characteristics. Because LEGO sets vary widely in complexity and price or market value, this dataset offers an opportunity to explore what factors drive the price of a set and whether these relationships can be modeled effectively.
+missing_table <- data.frame(
+  Variable = variables,
+  Missing = colSums(is.na(data[variables]))
+)
 
-Our primary research question is:
+missing_table
+```
+```{r}
+variables <- c(
+  "US_retailPrice",
+  "pieces",
+  "minifigs",
+  "weight",
+  "height",
+  "width",
+  "depth",
+  "agerange_min",
+  "rating",
+  "reviewCount",
+  "theme",
+  "themeGroup",
+  "category"
+)
 
-**1. What factors most strongly influence the retails price of a LEGO set?**
-
-To support this, we also consider several smaller questions - Does piece count explain most of the variation in price? - Are there certain themes that are consistently more expensive than others? - Does the year of release influence the price after controlling for all other variables?
-
-To address these questions, multiple linear regression, best subsets selection, and stepwise regression to identify the most influential predictors and construct a final model balances simplicity and predictive accuracy.
-
-
+data_complete <- data[complete.cases(data[variables]), ]
+nrow(data)
+nrow(data_complete)
+colSums(is.na(data_complete[variables]))
+```
+Once identifying the predictor variables for our research question, we created a table that would look into how many missing values each predictor variable had. After identifying how many data points had missing values, we created a new data set, named data_complete, containing only lego sets with complete predictor variable values. This allows us to make consistent comparisons between sets and prevents missing values from affecting our statistical analyses or limiting the observations available for certain calculations. 
