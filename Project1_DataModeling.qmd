@@ -197,24 +197,25 @@ abline(
   col = "red",
   lwd = 2
 )
-```
 
 plot(
   US_retailPrice ~ minifigs,
   data = data_complete,
-  main = "LEGO Set Price vs. Number of Minifigures",
+  main = "LEGO Set Price vs. Number of Minifigures", 
   xlab = "Number of Minifigures",
   ylab = "US Retail Price ($)",
   pch = 19,
   col = "purple"
 )
-The scatterplots reveal positive relationships between LEGO set retail price and the number of pieces and weight. The strongest visual relationship appears in the plot of retail price versus weight, where price generally increases as the weight of a set increases. This is consistent with the correlation coefficient of 0.967, indicating a very strong positive linear association. The plot of retail price versus number of pieces also shows a clear upward trend, consistent with its correlation of 0.911. Sets with more pieces generally have higher retail prices, although there is some variation among sets with similar piece counts. Several observations lie farther from the regression line, suggesting that some sets are considerably more expensive or less expensive than their piece counts alone might predict. These observations may reflect differences in set design, theme, or other characteristics that influence pricing. The plots support the correlation analysis by indicating that physical characteristics, particularly weight and piece count, are strongly associated with LEGO set retail price. However, the presence of outlying observations and variation around the regression lines suggests that additional variables may help explain differences in price. These findings provide a basis for the multiple linear regression analysis, which will evaluate the relative contributions of these predictors while accounting for the relationships among them.
 
-abline(
-  lm(US_retailPrice ~ minifigs, data = data_complete),
-  col = "red",
-  lwd = 2
-)
+abline(lm(US_retailPrice ~ minifigs, data = data_complete),col = "red",lwd = 2)
+
+```
+
+The scatterplots reveal positive relationships between LEGO set retail price and the number of pieces and weight. The strongest visual relationship appears in the plot of retail price versus weight, where price generally increases as the weight of a set increases. This is consistent with the correlation coefficient of 0.967, indicating a very strong positive linear association. The plot of retail price versus number of pieces also shows a clear upward trend, consistent with its correlation of 0.911. Sets with more pieces generally have higher retail prices, although there is some variation among sets with similar piece counts. Several observations lie farther from the regression line, suggesting that some sets are considerably more expensive or less expensive than their piece counts alone might predict. These observations may reflect differences in set design, theme, or other characteristics that influence pricing. The plots support the correlation analysis by indicating that physical characteristics, particularly weight and piece count, are strongly associated with LEGO set retail price. However, the presence of outlying observations and variation around the regression lines suggests that additional variables may help explain differences in price.
+
+The relationship between retail price and the number of minifigures is also positive, but the pattern is less consistent than those observed for weight and piece count. Although sets with more minifigures tend to have higher prices, there is considerable variation in price among sets containing the same number of minifigures. For example, sets containing six minifigures have substantially different retail prices, suggesting that minifigure count alone does not fully explain a set's price. Overall, the scatterplots support the correlation analysis by indicating that physical characteristics, particularly weight and piece count, are strongly associated with LEGO set retail price. However, the presence of outlying observations and variation around the regression lines suggests that additional variables may help explain differences in price.
+
 ## 6. Best Subsets Regression
 
 Best Subsets Regression is a model selecting method that takes the response variable, in this case US_retailPrice, and the predictors variables within the dataset and yields the possible models and their statistics. This method evaluates every possible combination of predictors and identifies the best model for each model size using adjusted R-squared and BIC. Using the data_complete where the missing value points are omitted.
@@ -224,18 +225,21 @@ Best Subsets Regression is a model selecting method that takes the response vari
 library(leaps)
 
 # predictor variables
-variable_names <- c("pieces", "minifigs", "weight", "height", "width", "depth","agerange_min", "rating", "reviewCount")
+variable_names <- c("pieces", "minifigs", "weight", "height", "width", "depth",
+                    "agerange_min", "rating", "reviewCount")
 
 # run best subsets 
-best_subsets <- regsubsets(US_retailPrice ~ pieces + minifigs + weight + height + width + depth + agerange_min + rating + reviewCount, data = data_complete)
+best_subsets <- regsubsets(US_retailPrice ~ pieces + minifigs + weight + 
+                             height + width + depth + agerange_min + rating + 
+                             reviewCount, data = data_complete)
 
 
 # display summary of the best regression models
 best_summary_model <- summary(best_subsets)
 best_summary_model
 
-# adjr2 tells us how well the predictors explain the variation in the response variable
-# the higher the adjr2 the better
+# adjr2 tells us how well the predictors explain the variation in the 
+# response variable and the higher the adjr2 the better
 best_summary_model$adjr2
 
 #Cp tells how well a model balances fit and complexity 
@@ -249,9 +253,7 @@ best_summary_model$bic
 #which tells which predictors are included in each model
 best_summary_model$which
 ```
-The scatterplots reveal positive relationships between LEGO set retail price and the number of pieces, weight, and number of minifigures. The strongest visual relationship appears in the plot of retail price versus weight, where price generally increases as the weight of a set increases. This is consistent with the correlation coefficient of 0.967, indicating a very strong positive linear association. The plot of retail price versus number of pieces also shows a clear upward trend, consistent with its correlation of 0.911. Sets with more pieces generally have higher retail prices, although there is some variation among sets with similar piece counts. Several observations lie farther from the regression line, suggesting that some sets are considerably more expensive or less expensive than their piece counts alone might predict. These observations may reflect differences in set design, theme, or other characteristics that influence pricing.
 
-The relationship between retail price and the number of minifigures is also positive, but the pattern is less consistent than those observed for weight and piece count. Although sets with more minifigures tend to have higher prices, there is considerable variation in price among sets containing the same number of minifigures. For example, sets containing six minifigures have substantially different retail prices, suggesting that minifigure count alone does not fully explain a set's price. Overall, the scatterplots support the correlation analysis by indicating that physical characteristics, particularly weight and piece count, are strongly associated with LEGO set retail price. However, the presence of outlying observations and variation around the regression lines suggests that additional variables may help explain differences in price. These findings provide a basis for the multiple linear regression analysis, which will evaluate the relative contributions of these predictors while accounting for the relationships among them.
 **Model Statistics**
 
 - Best adjusted R-squared = 0.9667 model 5
