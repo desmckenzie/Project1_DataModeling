@@ -17,11 +17,17 @@ Our primary research question is:
 
 **1. What factors most strongly influence the retails price of a LEGO set?**
 
-To support this, we also consider several smaller questions - Does piece count explain most of the variation in price? - Are there certain themes that are consistently more expensive than others? - Does the year of release influence the price after controlling for all other variables?
+To support this, we also consider several smaller questions:
+
+- Does piece count explain most of the variation in price?
+
+- Does the year of release influence the price after controlling for all other variables?
 
 To address these questions, multiple linear regression, best subsets selection, and stepwise regression to identify the most influential predictors and construct a final model balances simplicity and predictive accuracy.
 
 ## 3. Data Description
+
+Before conducting any modeling, it is important to clearly outline the variables included in the analysis and the roles they play. This section provides an overview of the dataset’s structure, identifies the response and predictor variables, and explains how each variable contributes to understanding what drives LEGO set retail prices
 
 ```{r}
 variable_table <- data.frame(
@@ -62,12 +68,11 @@ variable_table <- data.frame(
 variable_table
 
 ```
-<<<<<<< HEAD
 
-=======
-## 4.Data Cleaning and Processing
-Identifying missing value:
->>>>>>> 4e86ba419ecf118f963ddc1fe0da99545eead8e7
+## 4. Data Cleaning
+
+To prepare the dataset for analysis, we performed several data cleaning steps to ensure accuracy and consistency across all observations. This process involved identifying missing values and removing incomplete cases. Cleaning the data in this way allows us to work with a reliable subset of LEGO sets and prevents missing or inconsistent information from influencing the results of our exploratory analysis and regression models. The cleaned dataset, referred to as *data_complete*.
+
 ```{r}
 #load data and read csv
 df <- read.csv("2025.csv")
@@ -121,64 +126,13 @@ nrow(data_complete)
 colSums(is.na(data_complete[variables]))
 ```
 
-Once identifying the predictor variables for our research question, we created a table that would look into how many missing values each predictor variable had. After identifying how many data points had missing values, we created a new data set, named data_complete, containing only LEGO sets with complete predictor variable values. This allows us to make consistent comparisons between sets and prevents missing values from affecting our statistical analyses or limiting the observations available for certain calculations.
-
-```{r}
-quantitative_vars <- c(
-  "US_retailPrice",
-  "pieces",
-  "minifigs",
-  "weight",
-  "height",
-  "width",
-  "depth",
-  "agerange_min",
-  "rating",
-  "reviewCount"
-)
-
-outlier_table <- data.frame(
-  Variable = quantitative_vars,
-  Q1 = sapply(data_complete[quantitative_vars], quantile, probs = 0.25),
-  Q3 = sapply(data_complete[quantitative_vars], quantile, probs = 0.75)
-)
-
-outlier_table$IQR <- outlier_table$Q3 - outlier_table$Q1
-outlier_table$Lower_Bound <- outlier_table$Q1 - 1.5 * outlier_table$IQR
-outlier_table$Upper_Bound <- outlier_table$Q3 + 1.5 * outlier_table$IQR
-
-
-outlier_table$Number_of_Outliers <- sapply(
-  1:length(quantitative_vars),
-  function(i) {
-    x <- data_complete[[quantitative_vars[i]]]
-    sum(x < outlier_table$Lower_Bound[i] |
-        x > outlier_table$Upper_Bound[i])
-  }
-)
-
-outlier_table
-
-
-price_outliers <- data_complete[
-  data_complete$US_retailPrice < 
-    quantile(data_complete$US_retailPrice, 0.25) -
-    1.5 * IQR(data_complete$US_retailPrice) |
-  data_complete$US_retailPrice >
-    quantile(data_complete$US_retailPrice, 0.75) +
-    1.5 * IQR(data_complete$US_retailPrice),
-]
-
-price_outliers[, c("name", "US_retailPrice")]
-```
-
-After identifying potential outliers in the LEGO set data, we decided to retain these observations rather than remove them. The outliers represent LEGO sets with unusually high or low values for variables such as price, number of pieces, or other characteristics, but these values are not necessarily errors. In fact, extreme observations may reflect legitimate differences between LEGO sets, such as large collector sets, specialized sets, or particularly expensive products. Removing these observations could therefore eliminate meaningful variation from the dataset and make our analysis less representative of the full range of LEGO products.
-As the goal of our analysis is to understand patterns across LEGO sets as they actually exist, we believe it is more appropriate to keep legitimate outliers and account for their influence when interpreting our results. We will therefore retain the outliers while recognizing that they may have a greater effect on measures such as the mean and on statistical relationships between variables. This approach allows us to preserve the integrity of the original dataset while distinguishing unusual but valid observations from potential data-entry errors.
-
 ## 5. Exploratory Data Analysis
-```{r}
 
-# Select the quantitative variables
+Summary statistics show substantial variation in LEGO set characteristics, especially price, piece count, and weight. Price and piece count are right‑skewed, indicating that a small number of large sets pull the mean upward. Ratings and review counts contain many zeros, suggesting limited user feedback for many sets. The descriptive statistics support further investigation into how physical characteristics relate to retail price.
+
+```{r}
+# quantitative variables
+
 quantitative_vars <- c(
   "US_retailPrice",
   "pieces",
@@ -191,39 +145,6 @@ quantitative_vars <- c(
   "rating",
   "reviewCount"
 )
-
-# Calculate summary statistics for each quantitative variable
-summary_stats <- data.frame(
-  Variable = quantitative_vars,
-  Mean = sapply(data_complete[quantitative_vars], mean),
-  Median = sapply(data_complete[quantitative_vars], median),
-  SD = sapply(data_complete[quantitative_vars], sd),
-  Minimum = sapply(data_complete[quantitative_vars], min),
-  Q1 = sapply(data_complete[quantitative_vars], quantile, probs = 0.25),
-  Q3 = sapply(data_complete[quantitative_vars], quantile, probs = 0.75),
-  Maximum = sapply(data_complete[quantitative_vars], max)
-)
-
-# Round numerical results to two decimal places
-summary_stats[, -1] <- round(summary_stats[, -1], 2)
-
-# Display the table
-summary_stats
-
-```
-The summary statistics provide an overview of the variation in LEGO set prices and characteristics. The average U.S. retail price is 58.92 USD, while the median is 39.99 USD, suggesting that the distribution of prices is right-skewed, with some more expensive sets pulling the mean upward. Prices range from 9.99 to 299.99 USD, demonstrating substantial variation in the cost of LEGO sets. The number of pieces also varies considerably, with a mean of 518.70 pieces and a median of 261 pieces, while the maximum reaches 3,266 pieces. This large difference between the mean and median suggests that a relatively small number of sets contain substantially more pieces than typical sets. Weight shows a similar pattern, with a mean of 0.91 and a median of 0.52, further indicating variation in set size. 
-In comparison, the number of minifigures is more concentrated, with a mean of 3.23 and a median of 3.00. The average minimum recommended age is approximately 7 years, with a median of 6 years. Ratings and review counts have medians of zero, indicating that at least half of the observations have values of zero for these variables. This may reflect sets without recorded ratings or reviews, which is important to consider when interpreting their relationships with retail price. Overall, the summary statistics reveal substantial differences in LEGO set prices and physical characteristics, supporting further investigation into whether these characteristics can help explain variation in retail price.
-
-```{r}
-
-# Frequency tables for categorical variables
-table(data_complete$themeGroup)
-table(data_complete$category)
-
-# Display the 10 most common LEGO themes
-theme_counts <- sort(table(data_complete$theme), decreasing = TRUE)
-
-head(theme_counts, 10)
 
 # Select quantitative variables
 correlation_vars <- data_complete[quantitative_vars]
@@ -234,31 +155,12 @@ correlation_matrix <- cor(
   use = "complete.obs"
 )
 
-# Round correlations to three decimal places
-round(correlation_matrix, 3)
-
+correlation_matrix
 ```
 
-```{r}
-
-# Plot the correlation matrix
-correlation_matrix <- cor(
-  data_complete[quantitative_vars],
-  use = "complete.obs"
-)
-
-# Display correlations as a color-coded plot
-heatmap(
-  correlation_matrix,
-  symm = TRUE,
-  main = "Correlation Matrix of LEGO Set Variables"
-)
-
-```
 The correlation matrix shows strong positive relationships between LEGO set retail price and several measures of set size and complexity. The strongest correlation is between US retail price and weight (r = 0.967), followed by the number of pieces (r = 0.911). This suggests that heavier sets and sets containing more pieces tend to have higher retail prices. Price also has strong positive correlations with height (r = 0.819), width (r = 0.798), depth (r = 0.767), and the number of minifigures (r = 0.779). These results suggest that the physical size and contents of a LEGO set are closely associated with its retail price. The minimum recommended age also has a moderate positive correlation with price (r = 0.573), indicating that sets designed for older builders may tend to be more expensive. In contrast, user ratings (r = 0.252) and review counts (r = 0.260) have relatively weak correlations with price, suggesting that customer ratings and the number of reviews are less strongly associated with retail price than the physical characteristics of a set.
 
-The matrix also reveals strong correlations among several predictor variables. For example, piece count and weight have a correlation of 0.866, while weight is also strongly correlated with height (r = 0.846), width (r = 0.827), and depth (r = 0.827). These relationships suggest that the variables measure overlapping aspects of LEGO set size, which could create multicollinearity in a multiple linear regression model. This means that including all these predictors simultaneously may make it harder to distinguish their individual contributions to price. Additionally, ratings and review counts have a moderate positive correlation (r = 0.594), suggesting that sets with more reviews may also tend to have higher ratings. Overall, the correlation matrix suggests that weight and piece count are promising predictors of retail price, although further regression analysis and model selection will be necessary to determine which variables provide the most useful independent explanatory power.
-
+The matrix also reveals strong correlations among several predictor variables. For example, piece count and weight have a correlation of 0.866, while weight is also strongly correlated with height (r = 0.846), width (r = 0.827), and depth (r = 0.827). These relationships suggest that these variables could create multicollinearity in a multiple linear regression model. This means that including all these predictors simultaneously may make it harder to distinguish their individual contributions to price. Additionally, ratings and review counts have a moderate positive correlation (r = 0.594), suggesting that sets with more reviews may also tend to have higher ratings. Overall, the correlation matrix suggests that weight and piece count are promising predictors of retail price, although further regression analysis and model selection will be necessary to determine which variables provide the most useful independent explanatory power.
 
 ```{r}
 #Scatter plots of key relationships
@@ -295,6 +197,7 @@ abline(
   col = "red",
   lwd = 2
 )
+```
 
 plot(
   US_retailPrice ~ minifigs,
@@ -305,16 +208,56 @@ plot(
   pch = 19,
   col = "purple"
 )
+The scatterplots reveal positive relationships between LEGO set retail price and the number of pieces and weight. The strongest visual relationship appears in the plot of retail price versus weight, where price generally increases as the weight of a set increases. This is consistent with the correlation coefficient of 0.967, indicating a very strong positive linear association. The plot of retail price versus number of pieces also shows a clear upward trend, consistent with its correlation of 0.911. Sets with more pieces generally have higher retail prices, although there is some variation among sets with similar piece counts. Several observations lie farther from the regression line, suggesting that some sets are considerably more expensive or less expensive than their piece counts alone might predict. These observations may reflect differences in set design, theme, or other characteristics that influence pricing. The plots support the correlation analysis by indicating that physical characteristics, particularly weight and piece count, are strongly associated with LEGO set retail price. However, the presence of outlying observations and variation around the regression lines suggests that additional variables may help explain differences in price. These findings provide a basis for the multiple linear regression analysis, which will evaluate the relative contributions of these predictors while accounting for the relationships among them.
 
 abline(
   lm(US_retailPrice ~ minifigs, data = data_complete),
   col = "red",
   lwd = 2
 )
+## 6. Best Subsets Regression
 
+Best Subsets Regression is a model selecting method that takes the response variable, in this case US_retailPrice, and the predictors variables within the dataset and yields the possible models and their statistics. This method evaluates every possible combination of predictors and identifies the best model for each model size using adjusted R-squared and BIC. Using the data_complete where the missing value points are omitted.
+
+```{r}
+ # load package for best subsets regression
+library(leaps)
+
+# predictor variables
+variable_names <- c("pieces", "minifigs", "weight", "height", "width", "depth","agerange_min", "rating", "reviewCount")
+
+# run best subsets 
+best_subsets <- regsubsets(US_retailPrice ~ pieces + minifigs + weight + height + width + depth + agerange_min + rating + reviewCount, data = data_complete)
+
+
+# display summary of the best regression models
+best_summary_model <- summary(best_subsets)
+best_summary_model
+
+# adjr2 tells us how well the predictors explain the variation in the response variable
+# the higher the adjr2 the better
+best_summary_model$adjr2
+
+#Cp tells how well a model balances fit and complexity 
+# the lower the Cp the better the model
+best_summary_model$cp
+
+#BIC tells us how simple and interpretable a model is
+# the lower the BIC the better the model
+best_summary_model$bic
+
+#which tells which predictors are included in each model
+best_summary_model$which
 ```
 The scatterplots reveal positive relationships between LEGO set retail price and the number of pieces, weight, and number of minifigures. The strongest visual relationship appears in the plot of retail price versus weight, where price generally increases as the weight of a set increases. This is consistent with the correlation coefficient of 0.967, indicating a very strong positive linear association. The plot of retail price versus number of pieces also shows a clear upward trend, consistent with its correlation of 0.911. Sets with more pieces generally have higher retail prices, although there is some variation among sets with similar piece counts. Several observations lie farther from the regression line, suggesting that some sets are considerably more expensive or less expensive than their piece counts alone might predict. These observations may reflect differences in set design, theme, or other characteristics that influence pricing.
 
 The relationship between retail price and the number of minifigures is also positive, but the pattern is less consistent than those observed for weight and piece count. Although sets with more minifigures tend to have higher prices, there is considerable variation in price among sets containing the same number of minifigures. For example, sets containing six minifigures have substantially different retail prices, suggesting that minifigure count alone does not fully explain a set's price. Overall, the scatterplots support the correlation analysis by indicating that physical characteristics, particularly weight and piece count, are strongly associated with LEGO set retail price. However, the presence of outlying observations and variation around the regression lines suggests that additional variables may help explain differences in price. These findings provide a basis for the multiple linear regression analysis, which will evaluate the relative contributions of these predictors while accounting for the relationships among them.
+**Model Statistics**
 
-## 6. Best Subsets Regression 
+- Best adjusted R-squared = 0.9667 model 5
+
+- Best Cp = lowest one 4.81 model 5
+
+- Best BIC = -188.23 model 5
+
+The optimal model is model 5 that includes minifigs, weight, depth, agerange_min and rating. This model has the highest adjusted R-squared of 0.9667, the lowest Cp of 4.91, and the lowest BIC of -188.23, showing that this model explains that variation in retail price of LEGO sets the best and with relatively low complexity. Variables such as pieces, height, width, and reviewCount were not selected due to strong correlation with weight.
