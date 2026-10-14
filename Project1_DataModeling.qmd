@@ -324,12 +324,12 @@ The scatterplots reveal positive relationships between LEGO set retail price and
 The relationship between retail price and the number of minifigures is also positive, but the pattern is less consistent than those observed for weight and piece count. Although sets with more minifigures tend to have higher prices, there is considerable variation in price among sets containing the same number of minifigures. For example, sets containing six minifigures have substantially different retail prices, suggesting that minifigure count alone does not fully explain a set's price. Overall, the scatterplots support the correlation analysis by indicating that physical characteristics, particularly weight and piece count, are strongly associated with LEGO set retail price. However, the presence of outlying observations and variation around the regression lines suggests that additional variables may help explain differences in price.
 
 ## 6. Best Subsets Regression
-Best Subsets Regression is a model selecting method that takes the response variable, in this case US_retailPrice, and the predictors variables within the dataset and yields the possible models and their statistics. This method evaluates every possible combination of predictors and identifies the best model for each model size using adjusted R-squared, BIC and Cp. Adjusted R-squared tells us how well the predictors explain the variation in the response variable and the higher the adjusted R-squared the better. BIC tells us how simple and interpretable a model is; the lower the BIC the better the model. Cp tells how well a model balances fit and complexity; the lower the Cp the better the model.
 
+Best Subsets Regression is a model selecting method that takes the response variable, in this case US_retailPrice, and the predictors variables within the dataset and yields the possible models and their statistics. This method evaluates every possible combination of predictors and identifies the best model for each model size using adjusted R-squared, BIC and Cp. Adjusted R-squared accounts for model size to tell us how well the predictors explain the variation in the response variable, adding a weak predictor can cause it to drop. BIC penalizes adding parameters which tells us how simple and interpretable a model is; the lower the BIC the better the model. Cp tells how well a model balances fit and complexity; the lower the Cp the better the model.
 
 ### Stage 1 - Large sample
 
-Because several predictors in the full dataset have substantial missingness, especially weight, rating, and reviewCount, we pay attention to variables with relatively high coverage: pieces, minifigs, height, width, depth, and agerange_min. These variables allow us to retain a much larger portion of the dataset while still capturing key physical characteristics of LEGO sets. 
+Because several predictors in the full dataset have substantial missingness, especially weight, rating, and reviewCount, we pay attention to variables with relatively high coverage: pieces, minifigs, height, width, depth, and agerange_min. These variables allow us to retain a much larger portion of the dataset while still capturing key physical characteristics of LEGO sets.
 
 ```{r}
 # load the package
@@ -340,8 +340,10 @@ library(tidyr)
 df_stage1 <- df %>% drop_na(US_retailPrice, pieces, minifigs, height, width, depth, agerange_min)
 
 nrow(df_stage1)
+df_stage1
 
 ```
+
 After removing rows with missing values in these fields, the Stage 1 dataset contains 289 observations, more than the 61 complete cases available when weight and rating are required. This larger sample provides a more representative view of the overall LEGO product catalog and serves as the foundation for the high‑coverage model selection.
 
 ```{r}
@@ -366,15 +368,17 @@ best_summary_model$bic
 best_summary_model$which
 ```
 
-Applying the best-subsets regression to this 289 subset using price as the response variable, the strongest predictors were pieces, minifigs, height, and depth. The four-predictor model with these 4 predictors is the best model. This model achieves the highest adjusted R-squared (0.9568), indicating the strongest explanatory power among the other models. It also has the lowest Cp(3.08), which is close to the ideal value of p(predictors) + 1 = 5, and the lowest BIC(883.98), showing the best balance between fit and model complexity. Although, the five and six predictor models have adjusted R-squared values that are close to the four-predictor model, their Cp and BIC values are higher, indicating more complexity with little improvement. Therefore, the four-predictor model, model 4, is the preferred Stage 1 model. 
+Applying the best-subsets regression to this 289 subset using price as the response variable, the four-predictor model with pieces, minifigs, height, and depth is the best model. This model achieves the highest adjusted R-squared (0.9568), indicating the strongest explanatory power among the other models. It also has the lowest Cp(3.08), which is close to the ideal value of p(predictors) + 1 = 5, and the lowest BIC(-883.98), showing the best balance between fit and model complexity. Although, the fifth and sixth predictor models have adjusted R-squared values that are close to the four-predictor model;however, their Cp and BIC values are worse, indicating more complexity by adding more predictors with little improvement in the models explanatory power. Therefore, the four-predictor model, model 4, is the preferred Stage 1 model.
 
 ### Stage 2 - Complete Case
+
 Stage 2 uses a wider range of the predictor variables but only uses LEGO sets where there is no missing values. This subset is considered rich but small as it only contains 61 observations. In this subset we are including weight because it has strong explanatory value and rating and reviewCount may matter, but because these variables have huge missingness, they must be evaluated separately from Stage 1.
 
 ```{r}
 df_stage2 <- df %>% drop_na(US_retailPrice, pieces, minifigs, height, width, depth, agerange_min, weight, rating, reviewCount)
 
 nrow(df_stage2)
+df_stage2
 ```
 
 ```{r}
@@ -385,7 +389,7 @@ library(leaps)
 best_subsets <- regsubsets(US_retailPrice ~ pieces + minifigs + 
                              height + depth + width + agerange_min + 
                              weight + rating + reviewCount, 
-                           data = df_stage2)
+                           data = df_stage2, nvmax = 9)
 
 
 # display summary of the best regression models
@@ -399,31 +403,32 @@ best_summary_model$bic
 #which tells which predictors are included in each model
 best_summary_model$which
 ```
-Based on the best subsets regression for stage 2, the strongest predictors are weight, agerange, and minifigs. On the lower side of predictor impact is depth, rating, and reivewCount. Model 6 has the highest R-squared value (0.9669), indicating that it has the strongest explanatory prowess with Model 5, 7, and 8 all being around ~ 0.966. The model that balances fit and complexity the best is Model 5 with a Cp of 4.81, and it also has the best BIC of -188.23. Although Model 6 has the best adjusted R-squared, Model 5 only differs from Model 6 by 0.00217. The difference between the models is extremely small, and adding another predictor adds more complexity. Therefore, Model 5 keeps simplicity without losing key explanatory power.
+
+Based on the best subsets regression for stage 2, Model 6 has the highest adjusted R-squared value (0.9669), indicating that it has the strongest explanatory prowess with Model 5, 7, and 8 all being around \~ 0.966. The model that balances fit and complexity the best is Model 5 with a Cp of 4.81, and it also has the best BIC of -188.23. Although Model 6 has the best adjusted R-squared, Model 5 only differs from Model 6 adjusted R-sqaured by 0.000217. The difference between the models is extremely small, and adding another predictor adds more complexity. Therefore, Model 5 keeps simplicity without losing key explanatory power.
 
 ### Stage 1 vs Stage 2 Comparison
-The staged model‑selection strategy was necessary because the full dataset contains substantial missingness. These variables appear to have strong explanatory value, but requiring them reduces the usable sample from 1,079 sets to only 61 complete cases. By separating the analysis into two stages, we can evaluate how model conclusions change when richer predictors are included at the cost of dramatically reduced sample coverage.
+
+The staged model‑selection strategy was used to investigate the consequences of missing data. Because the models use different samples, their adjusted R-squared, Cp, and BIC values cannot be directly compared to decide which stage is better. These variables appear to have strong explanatory value, but requiring them reduces the usable sample from 1,079 sets to only 61 complete cases. By separating the analysis into two stages, we can evaluate how model conclusions change when richer predictors are included at the cost of dramatically reduced sample coverage.
 
 Stage 1 uses predictors with relatively high coverage such as, pieces, minifigs, height, width, depth, and agerange_min, retaining 289 observations. This larger sample is more representative of the overall LEGO catalog and provides a stable foundation for model selection. Stage 2 requires weight, rating, and reviewCount, which reduces the dataset to 61 complete cases. This smaller subset includes larger, heavier sets with more complete data, introducing potential selection bias.
 
-**Predictor Strength** 
-Predictor strength differs between stages. In Stage 1, pieces is the strongest predictor, followed by depth, minifigs, height, and agerange_min. These variables reflect physical size and complexity, which are widely available and strongly associated with price.
+**Predictor Strength** Predictor strength differs between stages. In Stage 1, pieces is the strongest predictor, followed by depth, minifigs, height, and agerange_min. These variables reflect physical size and complexity, which are widely available and strongly associated with price.
 
 In Stage 2, weight becomes the strongest predictor, followed by agerange_min, minifigs, depth, and rating. Weight enters the model first and remains included in every larger model, indicating that it captures information about set size and complexity that is not fully represented by piece count or dimensions. Rating and reviewCount enter only in larger models, suggesting weaker adjusted associations.
 
-**Model Selection**
-Stage 1 selects a four‑predictor model (pieces, minifigs, height, depth) as the best model. It has the highest adjusted R², lowest Cp, and lowest BIC, indicating strong explanatory power with minimal complexity. Although five‑ and six‑predictor models have similar adjusted R² values, their Cp and BIC values are higher, indicating more complexity.
+**Model Selection** Stage 1 selects a four‑predictor model (pieces, minifigs, height, depth) as the best model. It has the highest adjusted R², lowest Cp, and lowest BIC, indicating strong explanatory power with minimal complexity. Although five‑ and six‑predictor models have similar adjusted R² values, their Cp and BIC values are higher, indicating more complexity.
 
 Stage 2 selects a five‑predictor model (weight, agerange_min, minifigs, depth, rating). Although the six‑predictor model has the highest adjusted R², the difference is extremely small, and the five‑predictor model has both the lowest Cp and lowest BIC, making it the preferred model.
 
-**Consequences of Missing Data**
-The comparison highlights how missing values shapes model conclusions. Weight is a dominant predictor in Stage 2 but is missing for 893 sets in the full dataset. Ratings and review counts may reflect customer feedback collected after release. Stage 1 avoids these issues by focusing on predictors available for most sets, while Stage 2 explores the richer but selective subset.
+**Consequences of Missing Data** The comparison highlights how missing values shapes model conclusions. Weight is a dominant predictor in Stage 2 but is missing for 893 sets in the full dataset. Ratings and review counts may reflect customer feedback collected after release. Stage 1 avoids these issues by focusing on predictors available for most sets, while Stage 2 explores the richer but selective subset.
 
-**Model Interpretation**
-Stage 1 provides a broad model based on widely available physical characteristics. Stage 2 provides a richer model that incorporates weight and rating but is based on a much smaller and potentially selective sample. The staged approach allows us to compare these models directly and understand how predictor availability and sample coverage influence model selection. Stage 1 supports general pricing patterns across the dataset, while Stage 2 describes associations within a narrow subset of sets.
+**Model Interpretation** Stage 1 provides a broad model based on widely available physical characteristics. Stage 2 provides a richer model that incorporates weight and rating but is based on a much smaller and potentially selective sample. The staged approach allows us to compare these models directly and understand how predictor availability and sample coverage influence model selection. Stage 1 supports general pricing patterns across the dataset, while Stage 2 describes associations within a narrow subset of sets.
 
 ## 7. Model Diagnostics
-The diagnostic plots, residuals vs fitted, scale-location, q-q plot, cooks distance, will show whether the best subset model is actually valid. 
+
+The diagnostic plots, residuals vs fitted, scale-location, q-q plot, cooks distance, will show whether the best subset model is actually valid.
+
+**Stage 1**
 
 ```{r}
 # fit stage 1 model 4
@@ -433,7 +438,16 @@ model4 <- lm(US_retailPrice ~ pieces + minifigs + height + depth, data = df_stag
 par(mfrow = c(1,1))
 plot(model4)
 ```
-Stage 1 residuals vs fitted plot shows a cloud of points that are mostly homoskedastic, but the red LOESS line curves upward due an influential point. That point shifts the fitted values to the right which makes the residuals appear to fan out.
+
+In Stage 1, the residuals vs fitted plot shows a cluster of residuals around zero at lower fitted values, while the red LOESS line bends upward instead of remaining flat. This curvature is largely driven by a single influential observation with a fitted value near 900, which pulls the smoothing line upward and creates the appearance of a pattern. As a result, the residuals are not entirely pattern‑free.
+
+The normal Q–Q plot indicates that the residuals follow the reference line closely through the center of the distribution, but the tails deviate, suggesting imperfect normality.
+
+The scale–location plot, which displays the square root of the standardized residuals against fitted values, shows a rise in the red smoothing line on the right side of the plot. This suggests that variability may increase as fitted price increases, indicating possible nonconstant variance. However, the same high‑leverage point appears to distort the trend and may exaggerate the apparent increase in spread.
+
+Finally, the residuals vs leverage plot confirms the presence of an observation with extremely high leverage. This point corresponds to LEGO set ID 51002 (Death Star), with a retail price of \$899.99, affecting model inference.
+
+**Stage 2**
 
 ```{r}
 #fit stage 2 model 5
@@ -443,51 +457,102 @@ model5 <- lm(US_retailPrice ~ weight + agerange_min + minifigs + depth + rating,
 par(mfrow = c(1,1))
 plot(model5)
 ```
-The same influential point exists in Stage 2 diagnostics as it was in Stage 1, but the predictors, weight especially, explain price better so the point has less leverage. As a result, the residual patterns look more homoskedastic.
 
-Diagnostic plots reveal meaningful differences in model behavior between the Stage 1 and Stage 2 models. In Stage 1, the residuals vs fitted plot displays some fanning, and the scale–location plot shows a mild upward trend. However, closer inspection indicates that this pattern is largely driven by a single influential observation, which pulls the line upward and shifts the fitted values. Aside from this point, the residual spread is relatively stable, and the apparent heteroskedasticity is more reflective of leverage effects.
+The Stage 2 diagnostic plots show some improvement in residual behavior, although several potential issues remain. In the residuals-versus-fitted plot, most observations are concentrated at lower fitted prices, while a few observations have relatively large residuals. The smooth curve shows some curvature, suggesting that the linear relationship may not fully capture every pattern in the data. The normal Q–Q plot follows the reference line reasonably well through the middle, but deviations in the tails suggest that the residuals may not be perfectly normally distributed. Similarly, the scale–location plot shows a slight upward trend before flattening, indicating that constant residual variance should not be assumed without further investigation.
 
-In Stage 2, the residuals vs fitted and scale–location plots appear more homoskedastic, with a more uniform spread of residuals across fitted values. The same influential point is present, but the stronger predictors, reduces its leverage and diminishes its impact on the diagnostic plots. The Q–Q plot again follows the reference line closely. Despite the smaller sample size, the Stage 2 model exhibits cleaner diagnostic behavior, suggesting that the richer predictor set improves model stability.
+The residuals versus leverage plot identifies observations 9, set ID 51221 Kakamora Barge listed at \$99.99, and 29, set ID 51331 Italian Riviera listed at \$299.99, as potentially unusual, with observation 9 showing particularly high leverage and a large standardized residual. These observations should be investigated using Cook’s distance and, if appropriate, a sensitivity analysis to determine whether they substantially affect the model estimates. Overall, the Stage 2 diagnostics suggest that the model captures much of the relationship between the selected predictors and retail price, but possible nonlinearity, nonconstant variance, and influential observations remain concerns.
 
-These differences highlight the trade‑off between sample size and predictor richness. Stage 1 benefits from broader coverage but is more sensitive to influential observations, while Stage 2 sacrifices coverage but gains a more stable residual structure.
+**Diagnostic Comparison** The Stage 1 and Stage 2 models both explain variations in LEGO retail price, but their diagnostic plots show that some assumptions may require further consideration, The Stage 1 Model uses more observations and provides a broader coverage of the dataset, although its plots how possible changes in residual variance and in unusual observation of high fitted values. The Stage 2 model has a more favorable residual pattern in certain plots, but it still contains residuals with potential high leverage. Therefore, the diagnostic plots allow do not establish that either model satisfies all regression assumptions.
 
 ## 8. Final Model Selection
-The staged model‑selection process produced two candidate models: a high‑coverage Stage 1 model based on 289 observations and a richer Stage 2 model based on 61 complete cases. Stage 1 identified a four‑predictor model including pieces, minifigs, height, and depth as the best model according to adjusted R², Cp, and BIC. Stage 2 identified a five‑predictor model including weight, agerange_min, minifigs, depth, and rating as the best model, with the lowest Cp and BIC and an adjusted R² nearly identical to the larger six‑predictor alternative.
 
-To determine the final model, we compared diagnostic plots for both candidates. The Stage 1 model exhibited mild heteroskedasticity in the residuals vs fitted and scale–location plots, largely driven by a single influential observation that pulled the smoothing line upward. Aside from this point, the residual spread was reasonably stable, but variance increased slightly at higher fitted values. In contrast, the Stage 2 model displayed cleaner diagnostic behavior, with more uniform residual variance and reduced influence from the same high‑leverage point. The inclusion of weight, the strongest predictor in Stage 2, appears to stabilize the residual structure and improve model fit despite the smaller sample size.
+The staged model‑selection process produced two candidate models: a high‑coverage Stage 1 model based on 289 observations and a richer Stage 2 model based on 61 complete cases. Stage 1 identified a four‑predictor model including pieces, minifigs, height, and depth as the best model according to adjusted R‑squared, Cp, and BIC. Stage 2 identified a five‑predictor model including weight, agerange_min, minifigs, depth, and rating as the best model, with the lowest Cp and BIC and an adjusted R‑squared nearly identical to the larger six‑predictor alternative.
 
-Although Stage 1 benefits from broader coverage, the Stage 2 model provides a more stable residual pattern and incorporates predictors with stronger explanatory value. The difference in adjusted R² between the Stage 2 five‑ and six‑predictor models is negligible, and the five‑predictor model is preferred based on Cp and BIC. Therefore, the final model selected for interpretation is the Stage 2 five‑predictor model:
+Both models were retained for interpretation because they are fit on different samples, and their fit statistics cannot be compared as though they were calculated from the same data. The final choice therefore reflects the selection criteria within each stage and the intended focus on the richer predictor set available in Stage 2, rather than evidence that Stage 2 is objectively “better” than Stage 1.
 
-### 
+### Regression Equation Interpretation
+
 ```{r}
-#regression equation
+#regression equations
 summary(model5)
+summary(model4)
 
 # load package and check for collinearity
 library(car)
 vif(model5)
+vif(model4)
 
 ```
-Final Regression Equation: 
+**Stage 1 Final Regression Equation:** 
+$$
+\widehat{\text{US retail price}}
+= -48.675
++ 0.0607\,(\text{pieces})
++ 4.3017\,(\text{minifigs})
++ 0.09399\,(\text{height})
++ 5.887\,(\text{depth})
+$$
+The intercept of -48.675 represents the predicted price when all predictors are zero. Not meaningful substantively but is included for model completeness.
+
+Pieces (+0.0607) holding all other predictors constant, each additional piece is associated with an estimated \$0.06 increase in retail price.
+
+Minifigs (+4.3017) holding all the other predictors constant, each additional minifigure in minimum age recommended increases retail
+price by \$4.30
+
+Height (+0.09399) for each one‑unit increase in height, retail price increases by \$0.09, holding other predictors constant.
+
+Depth (+5.887) for each additional one-unit of package depth retail, price increases by \$5.89, holding other predictors constant.
+
+
+VIF values were all below 10, indicating no severe multicollinearity. Pieces (5.41) and depth (4.07) showed moderately elevated VIFs due to overlap with other physical size variables, but these levels do not compromise model stability.
+
+**Stage 2 Final Regression Equation:** 
+$$
+\widehat{\text{US retail price}}
+= -0.3865
++ 58.8252\,(\text{weight})
++ 2.9673\,(\text{agerange\_min})
++ 2.7778\,(\text{minifigs})
+- 2.8752\,(\text{depth})
+- 1.8362\,(\text{rating})
+$$
+
 
 The intercept of -0.3865 represents the predicted price when all predictors are zero.Not meaningful substantively but is included for model completeness.
 
-Weight (58.83) holding all other variables constant, each additional kilogram of weight is associated with an estimated $58.83 increase in retail price. Weight is the strongest predictor in the entire analysis (p < 2e‑16). This aligns with intuition: heavier sets contain more material, larger builds, and higher production costs.
+Weight (+58.83) holding all other predictors constant, each additional one-unit of weight is associated with an estimated \$58.83 increase in retail price. Weight has the strongest statistical evidence of an association with price in this model, with a very small p-value. This aligns with intuition: heavier sets contain more material, larger builds, and higher production costs.
 
-Minimum Age (2.97)for each one‑year increase in the minimum recommended age, price increases by $2.97, holding other variables constant. Sets designed for older builders tend to be more complex, more detailed, and more expensive.
+Minimum Age (+2.97) holding all the other predictors constant, each additional year in minimum age recommended increases retail price by \$2.97.
 
-Minifigs (2.78) each additional minifigure increases price by $2.78, holding other variables constant. Minifigures are high‑value components, often tied to licensed themes or collectible characters.
+Minifigs (+2.78) each additional minifigure is associated with an increase in retail price by \$2.78, holding other predictors constant.
 
-Depth (–2.88) for each additional centimeter of package depth, price decreases by $2.88, holding other variables constant.This negative coefficient is common in multivariate LEGO models as depth overlaps with weight and age range.
+Depth (–2.88) for each additional one-unit of package depth retail, price decreases by \$2.88, holding other predictors constant.
 
-Rating (–1.84) for each one‑unit increase in customer rating, price decreases by $1.84, holding other variables constant. This negative sign is expected: higher‑rated sets tend to be better value, meaning they deliver more satisfaction per dollar. Rating reflects post‑purchase sentiment, not production cost.
+Rating (–1.84) for each one‑unit increase in customer rating, retail price decreases by \$1.84, holding other predictors constant.
 
 VIF values were all below 10, indicating no severe multicollinearity. Weight had a moderately elevated VIF (5.61), reflecting its overlap with other physical size variables, but this does not compromise model stability.
 
-## 9. Limitations 
+## 9. Limitations
+
 Several limitations affect the interpretation of the final model. First, the Stage 2 model is based on only 61 complete cases, which reduces statistical power and may limit generalization. Sets with complete data tend to be larger, heavier, and more complex, introducing potential selection bias. Second, although diagnostics for the final model were generally favorable, one influential observation affected the residual structure in both Stage 1 and Stage 2, suggesting sensitivity to outliers.
 
 ## 10. Conclusion
-This analysis used a staged model‑selection strategy to evaluate predictors of LEGO retail price. Stage 1 used a larger, high‑coverage dataset and identified physical characteristics such as piece count, minifigs, height, and depth as strong predictors. Stage 2 incorporated richer variables at the cost of reduced sample size. Diagnostics indicated that the Stage 2 model exhibited more stable residual behavior, and best‑subsets criteria selected a five‑predictor model including weight, agerange_min, minifigs, depth, and rating as the final model.
 
-Weight emerged as the strongest predictor overall, reflecting its close relationship with set complexity and material cost. The final model balances explanatory strength and diagnostic stability, providing a an understanding of how physical attributes and customer sentiment relate to LEGO pricing. Despite limitations related to missingness and sample size, the staged approach offers a clear and interpretable analysis of the factors influencing retail price.
+This project used multiple linear regression and best‑subsets model selection to examine how LEGO set characteristics are associated with US retail price. Because the original dataset contained substantial missing data, we used a two‑stage approach to evaluate models with different levels of predictor availability. Stage 1 used 289 observations and selected a four‑predictor model containing piece count, minifigure count, height, and depth. Stage 2 incorporated additional information—particularly weight and customer rating—but was limited to 61 complete observations.
+
+The final model selected is the Stage 2 five‑predictor model:
+$$
+\widehat{\text{US retail price}}
+= -0.3865
++ 58.8252\,(\text{weight})
++ 2.9673\,(\text{agerange\_min})
++ 2.7778\,(\text{minifigs})
+- 2.8752\,(\text{depth})
+- 1.8362\,(\text{rating})
+$$
+
+This model balances explanatory strength, diagnostic stability, and parsimony, offering a meaningful framework for understanding how physical attributes and customer sentiment relate to LEGO pricing. While limitations related to missingness, sample size, and potential selection bias remain, the staged approach provides a robust and interpretable analysis of the factors influencing retail price.
+
+These results should be interpreted with several limitations in mind. Requiring complete data reduced the analysis from the original 1,079 sets to only 61 observations in Stage 2, which may limit how well the final model represents the full LEGO catalog. The diagnostic plots also identified unusual residuals and a potentially high‑leverage observation. In addition, the analysis identifies associations rather than causal effects, and the relationships observed in the selected sample may not generalize to all LEGO sets.
+
+Overall, the analysis demonstrates that physical characteristics and other set attributes can collectively explain substantial variation in LEGO retail price within the analyzed sample. The staged approach made it possible to compare a broader model with a richer but smaller model, showing the trade‑off between sample coverage and the availability of additional predictors. Further investigation of missing data, influential observations, and model assumptions would help determine how reliably these relationships extend to the wider LEGO catalog
