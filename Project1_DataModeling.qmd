@@ -233,7 +233,7 @@ Ratings and review counts have higher means in the complete-case subset (mean ra
 
 - Weight and dimensions have a high amount of missing data, which is why the complete-case subset only leaves 61 LEGO sets to be observed
 
-- Based on the summaries, the complete-case subset is not representative of the data because it contains heavier, larger sets, it excludes many high priced and high piece count LEGO sets, and it overerpresents sets with more complete data and reviews.
+- Based on the summaries, the complete-case subset is not representative of the data because it contains heavier, larger sets, it excludes many high priced and high piece count LEGO sets, and it over represents sets with more complete data and reviews.
 
 **Correlation Analysis**
 
@@ -551,8 +551,8 @@ $$
 - 1.8362\,(\text{rating})
 $$
 
-This model balances explanatory strength, diagnostic stability, offering a meaningful framework for understanding how physical attributes and customer sentiment relate to LEGO pricing. While limitations related to missingness, sample size, and potential selection bias remain, the staged approach provides a robust and interpretable analysis of the factors influencing retail price.
+This model balances explanatory strength, diagnostic stability, offering an understanding on how physical attributes and customer sentiment relate to LEGO pricing. While limitations related to missingness, sample size, and potential selection bias remain, the staged approach provides a strong and interpretable analysis of the factors influencing retail price.
 
 These results should be interpreted with several limitations in mind. Requiring complete data reduced the analysis from the original 1,079 sets to only 61 observations in Stage 2, which may limit how well the final model represents the full LEGO catalog. The diagnostic plots also identified unusual residuals and a potentially high‑leverage observation. In addition, the analysis identifies associations rather than causal effects, and the relationships observed in the selected sample may not generalize to all LEGO sets.
 
-Overall, the analysis demonstrates that physical characteristics and other set attributes can collectively explain substantial variation in LEGO retail price within the analyzed sample. The staged approach made it possible to compare a broader model with a richer but smaller model, showing the trade‑off between sample coverage and the availability of additional predictors. Further investigation of missing data, influential observations, and model assumptions would help determine how reliably these relationships extend to the wider LEGO catalog
+Overall, the analysis demonstrates that physical characteristics and other set attributes can collectively explain substantial variation in LEGO retail price within the analyzed sample. The staged approach made it possible to compare a broader model with a richer but smaller model, showing the trade‑off between sample coverage and the availability of additional predictors. Further investigation of missing data, influential observations, and model assumptions would help determine how reliably these relationships extend to the wider LEGO catalog.
