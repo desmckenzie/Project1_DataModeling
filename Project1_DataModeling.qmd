@@ -7,9 +7,9 @@ editor: visual
 
 ## 1. Introduction
 
-The term 'LEGO set' is a familiar one, associated with fun across generations allowing for kids and adults to build and create alongside one another. Aside from being a household name, LEGO is a global toy brand with a wide variety of products that differ in size, complexity, and price. Understanding how set characteristics are associated with original retail price is relevant to consumers, collectors, and manufacturers interested in LEGO pricing. 
+The term 'LEGO set' is a familiar one, associated with fun across generations allowing for kids and adults to build and create alongside one another. Aside from being a household name, LEGO is a global toy brand with a wide variety of products that differ in size, complexity, and price. Understanding how set characteristics are associated with original retail price is relevant to consumers, collectors, and manufacturers interested in LEGO pricing.
 
-The Brickset dataset offers a rich opportunity to explore how features related to price impact the market. In regards to the price, our analysis will use the original US retail price for a LEGO set which was set by the company unlike the resale price established by the person selling a set or the market price which adjusts for how much it would be worth if sold today. Using the original retail price will allow us to draw more accurate conclusions on what characteristics of a set are most associated to its cost as the price is based on the company selling the set, not what others think it is worth. By analyzing these variables and applying model selection techniques, the goal is to identify the most strongly associated with original retail price and construct a model that prioritizes not only predictive accuracy but also interpretability. This analysis will also allow us to examine larger patterns in LEGO set design and pricing across themes. 
+The Brickset dataset offers a rich opportunity to explore how features related to price impact the market. In regards to the price, our analysis will use the original US retail price for a LEGO set which was set by the company unlike the resale price established by the person selling a set or the market price which adjusts for how much it would be worth if sold today. Using the original retail price will allow us to draw more accurate conclusions on what characteristics of a set are most associated to its cost as the price is based on the company selling the set, not what others think it is worth. By analyzing these variables and applying model selection techniques, the goal is to identify the most strongly associated with original retail price and construct a model that prioritizes not only predictive accuracy but also interpretability. This analysis will also allow us to examine larger patterns in LEGO set design and pricing across themes.
 
 ## 2. Research Questions
 
@@ -19,13 +19,15 @@ Our primary research question is:
 
 **1. Which LEGO set characteristics are most strongly associated with original US retail price?**
 
-To answer this question, we will examine the relationship between original U.S. retail price and several characteristics of LEGO sets released in 2025, including piece count, weight, and other available product features. 
+To answer this question, we will examine the relationship between original U.S. retail price and several characteristics of LEGO sets released in 2025, including piece count, weight, and other available product features.
 
-We will begin by conducting exploratory data analysis to understand the distributions of the variables, identify potential relationships with retail price, and assess whether any observations or patterns may affect the regression analysis. Next, we will use multiple linear regression to evaluate the associations between set characteristics and retail price. Model selection techniques, including best subsets selection and stepwise regression, will then be used to compare candidate models and identify which combination of predictors provides the best balance between explanatory power and simplicity. We will evaluate the selected model using measures of model fit, such as adjusted (R^2), alongside residual plots to assess whether the regression assumptions are reasonably satisfied. Through this process, the analysis aims to identify the characteristics most closely associated with original retail price and develop an interpretable model that explains price variation among LEGO sets released in 2025. As the data is observational, the findings will describe statistical associations rather than establish causal relationships.
+We will begin by conducting exploratory data analysis to understand the distributions of the variables, identify potential relationships with retail price, and assess whether any observations or patterns may affect the regression analysis. Next, we will use multiple linear regression to evaluate the associations between set characteristics and retail price. Model selection techniques, including best subsets selection and stepwise regression, will then be used to compare candidate models and identify which combination of predictors provides the best balance between explanatory power and simplicity. We will evaluate the selected model using measures of model fit, such as adjusted (R\^2), alongside residual plots to assess whether the regression assumptions are reasonably satisfied. Through this process, the analysis aims to identify the characteristics most closely associated with original retail price and develop an interpretable model that explains price variation among LEGO sets released in 2025. As the data is observational, the findings will describe statistical associations rather than establish causal relationships.
 
 ## 3. Data Description
 
-The dataset used in this analysis is from Brickset, primarily known as an online LEGO database that catalogs official LEGO sets released, along with details about minifigures, parts, colors, set inventories, and release information. The dataset was accessed through Github and can be accessed using this link: https://github.com/jbryer/brickset/blob/main/data-raw/sets/2025.csv
+The dataset used in this analysis is from Brickset, primarily known as an online LEGO database that catalogs official LEGO sets released, along with details about minifigures, parts, colors, set inventories, and release information. The dataset was accessed through Github and can be accessed using this link:
+
+https://github.com/jbryer/brickset/blob/main/data-raw/sets/2025.csv
 
 Each row in the dataset represents a single LEGO set and contains measurements recorded at the time of the set's original retail release. These included the sets' US retail price, physical characteristics, packaging dimensions, recommended age range, customer rating information. Because Brickset is a real-world catalog of LEGO products, the dataset consists of authentic observations rather than simulated data.
 
@@ -186,13 +188,16 @@ hist(df$reviewCount, main = "Review Count", xlab = "Reviews", col = "lightblue")
 
 # Histograms (61-case subset)
 par(mfrow = c(2, 3))
-hist(data_complete$US_retailPrice, main = "Price (Complete Cases)", xlab = "Price", col = "lightgreen")
-hist(data_complete$pieces, main = "Pieces (Complete Cases)", xlab = "Pieces", col = "lightgreen")
-hist(data_complete$weight, main = "Weight (Complete Cases)", xlab = "Weight (grams)", col = "lightgreen")
-hist(data_complete$rating, main = "Rating (Complete Cases)", xlab = "Rating", col = "lightgreen")
-hist(data_complete$reviewCount, main = "Reviews (Complete Cases)", xlab = "Reviews", col = "lightgreen")
-
-
+hist(data_complete$US_retailPrice, main = "Price (Complete Cases)", 
+     xlab = "Price", col = "lightgreen")
+hist(data_complete$pieces, main = "Pieces (Complete Cases)", 
+     xlab = "Pieces", col = "lightgreen")
+hist(data_complete$weight, main = "Weight (Complete Cases)", 
+     xlab = "Weight (grams)", col = "lightgreen")
+hist(data_complete$rating, main = "Rating (Complete Cases)", 
+     xlab = "Rating", col = "lightgreen")
+hist(data_complete$reviewCount, main = "Reviews (Complete Cases)", 
+     xlab = "Reviews", col = "lightgreen")
 ```
 
 **Distribution in Full Dataset**
@@ -335,10 +340,10 @@ library(dplyr)
 library(tidyr)
 
 # counts the amount of observations(rows) in Stage 1
-df_stage1 <- df %>% drop_na(US_retailPrice, pieces, minifigs, height, width, depth, agerange_min)
+df_stage1 <- df %>% drop_na(US_retailPrice, pieces, minifigs, 
+                            height, width, depth, agerange_min)
 
 nrow(df_stage1)
-df_stage1
 
 ```
 
@@ -373,10 +378,10 @@ Applying the best-subsets regression to this 289 subset using price as the respo
 Stage 2 uses a wider range of the predictor variables but only uses LEGO sets where there is no missing values. This subset is considered rich but small as it only contains 61 observations. In this subset we are including weight because it has strong explanatory value and rating and reviewCount may matter, but because these variables have huge missingness, they must be evaluated separately from Stage 1.
 
 ```{r}
-df_stage2 <- df %>% drop_na(US_retailPrice, pieces, minifigs, height, width, depth, agerange_min, weight, rating, reviewCount)
+df_stage2 <- df %>% drop_na(US_retailPrice, pieces, minifigs, height, width, 
+                            depth, agerange_min, weight, rating, reviewCount)
 
 nrow(df_stage2)
-df_stage2
 ```
 
 ```{r}
@@ -402,7 +407,7 @@ best_summary_model$bic
 best_summary_model$which
 ```
 
-Based on the best subsets regression for stage 2, Model 6 has the highest adjusted R-squared value (0.9669), indicating that it has the strongest explanatory prowess with Model 5, 7, and 8 all being around \~ 0.966. The model that balances fit and complexity the best is Model 5 with a Cp of 4.81, and it also has the best BIC of -188.23. Although Model 6 has the best adjusted R-squared, Model 5 only differs from Model 6 adjusted R-sqaured by 0.000217. The difference between the models is extremely small, and adding another predictor adds more complexity. Therefore, Model 5 keeps simplicity without losing key explanatory power.
+Based on the best subsets regression for stage 2, Model 6 has the highest adjusted R-squared value (0.9669), indicating that it has the strongest explanatory prowess with Model 5, 7, and 8 all being around \~ 0.966. The model that balances fit and complexity the best is Model 5 with a Cp of 4.81, and it also has the best BIC of -188.23. Although Model 6 has the best adjusted R-squared, Model 5 only differs from Model 6 adjusted R-squared by 0.000217. The difference between the models is extremely small, and adding another predictor adds more complexity. Therefore, Model 5 keeps simplicity without losing key explanatory power.
 
 ### Stage 1 vs Stage 2 Comparison
 
@@ -430,7 +435,8 @@ The diagnostic plots, residuals vs fitted, scale-location, q-q plot, cooks dista
 
 ```{r}
 # fit stage 1 model 4
-model4 <- lm(US_retailPrice ~ pieces + minifigs + height + depth, data = df_stage1)
+model4 <- lm(US_retailPrice ~ pieces + minifigs + height + depth, 
+             data = df_stage1)
 
 # plots 
 par(mfrow = c(1,1))
@@ -449,7 +455,8 @@ Finally, the residuals vs leverage plot confirms the presence of an observation 
 
 ```{r}
 #fit stage 2 model 5
-model5 <- lm(US_retailPrice ~ weight + agerange_min + minifigs + depth + rating, data = df_stage2)
+model5 <- lm(US_retailPrice ~ weight + agerange_min + minifigs + depth + rating, 
+             data = df_stage2)
 
 #plots
 par(mfrow = c(1,1))
@@ -479,40 +486,36 @@ summary(model4)
 library(car)
 vif(model5)
 vif(model4)
-
 ```
-**Stage 1 Final Regression Equation:** 
-$$
-\widehat{\text{US retail price}}
+
+**Stage 1 Final Regression Equation:** $$\widehat{\text{US retail price}}
 = -48.675
 + 0.0607\,(\text{pieces})
 + 4.3017\,(\text{minifigs})
 + 0.09399\,(\text{height})
-+ 5.887\,(\text{depth})
-$$
-The intercept of -48.675 represents the predicted price when all predictors are zero. Not meaningful substantively but is included for model completeness.
++ 5.887\,(\text{depth})$$ The intercept of -48.675 represents the predicted price when all predictors are zero. Not meaningful substantively but is included for model completeness.
 
 Pieces (+0.0607) holding all other predictors constant, each additional piece is associated with an estimated \$0.06 increase in retail price.
 
-Minifigs (+4.3017) holding all the other predictors constant, each additional minifigure in minimum age recommended increases retail
-price by \$4.30
+Minifigs (+4.3017) holding all the other predictors constant, each additional minifigure in minimum age recommended increases retail price by \$4.30
 
 Height (+0.09399) for each one‑unit increase in height, retail price increases by \$0.09, holding other predictors constant.
 
 Depth (+5.887) for each additional one-unit of package depth retail, price increases by \$5.89, holding other predictors constant.
 
-
 VIF values were all below 10, indicating no severe multicollinearity. Pieces (5.41) and depth (4.07) showed moderately elevated VIFs due to overlap with other physical size variables, but these levels do not compromise model stability.
 
-**Stage 2 Final Regression Equation:** 
+**Stage 2 Final Regression Equation:**
+
 $$
-\widehat{\text{US retail price}}
-= -0.3865
-+ 58.8252\,(\text{weight})
-+ 2.9673\,(\text{agerange\_min})
-+ 2.7778\,(\text{minifigs})
-- 2.8752\,(\text{depth})
-- 1.8362\,(\text{rating})
+\begin{aligned}
+\widehat{\text{US retail price}} ={}& -0.3865 \\
+&+ 58.8252\,(\text{weight}) \\
+&+ 2.9673\,(\text{agerange\_min}) \\
+&+ 2.7778\,(\text{minifigs}) \\
+&- 2.8752\,(\text{depth}) \\
+&- 1.8362\,(\text{rating})
+\end{aligned}
 $$
 
 
@@ -530,7 +533,8 @@ Rating (–1.84) for each one‑unit increase in customer rating, retail price d
 
 VIF values were all below 10, indicating no severe multicollinearity. Weight had a moderately elevated VIF (5.61), reflecting its overlap with other physical size variables, but this does not compromise model stability.
 
-## 9. Limitations 
+## 9. Limitations
+
 Several limitations should be considered when interpreting the results of this analysis. First, the dataset is restricted to LEGO sets released in 2025, limiting the findings to the characteristics and pricing patterns of sets within that release year. Consequently, the results may not generalize to LEGO sets released in other years, when product designs, pricing strategies, and market conditions may differ. Additionally, the analysis examines original U.S. retail prices rather than resale values or current market prices, meaning the findings do not account for changes in value after a set's initial release. In reality, LEGO sets frequently change in value after being released thus our models may not reflect the lived reality of what factors are most strongly associated with general price.
 
 A second limitation concerns missing data and the use of two analytical stages. Stage 2 uses only observations with complete data across all variables included in the analysis, whereas Stage 1 uses the broader dataset, allowing observations to be retained even when some variables have missing values. This approach allows the analysis to compare results across different data samples and examine whether the conclusions remain consistent. However, Stage 2's complete-case requirement reduces the sample size and may introduce bias if observations with missing values differ systematically from those with complete data. Although Stage 1 incorporates more of the available dataset, the inclusion of additional observations does not automatically eliminate the limitations associated with missing data. The available information may be insufficient to determine whether missingness is random or related to particular set characteristics. Furthermore, differences between the two stages may reflect changes in sample composition rather than genuine differences in the relationships between predictors and retail price. Therefore, comparisons between the stages must account for the different data used in each analysis.
@@ -544,15 +548,18 @@ Finally, the analysis relies on observational data and linear regression methods
 This project used multiple linear regression and best‑subsets model selection to examine how LEGO set characteristics are associated with US retail price. Because the original dataset contained substantial missing data, we used a two‑stage approach to evaluate models with different levels of predictor availability. Stage 1 used 289 observations and selected a four‑predictor model containing piece count, minifigure count, height, and depth. Stage 2 incorporated additional information—particularly weight and customer rating—but was limited to 61 complete observations.
 
 The final model selected is the Stage 2 five‑predictor model:
+
 $$
-\widehat{\text{US retail price}}
-= -0.3865
-+ 58.8252\,(\text{weight})
-+ 2.9673\,(\text{agerange\_min})
-+ 2.7778\,(\text{minifigs})
-- 2.8752\,(\text{depth})
-- 1.8362\,(\text{rating})
+\begin{aligned}
+\widehat{\text{US retail price}} ={}& -0.3865 \\
+&+ 58.8252\,(\text{weight}) \\
+&+ 2.9673\,(\text{agerange\_min}) \\
+&+ 2.7778\,(\text{minifigs}) \\
+&- 2.8752\,(\text{depth}) \\
+&- 1.8362\,(\text{rating})
+\end{aligned}
 $$
+
 
 This model balances explanatory strength, diagnostic stability, offering an understanding on how physical attributes and customer sentiment relate to LEGO pricing. While limitations related to missingness, sample size, and potential selection bias remain, the staged approach provides a strong and interpretable analysis of the factors influencing retail price.
 
