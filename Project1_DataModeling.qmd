@@ -551,7 +551,7 @@ $$
 - 1.8362\,(\text{rating})
 $$
 
-This model balances explanatory strength, diagnostic stability, and parsimony, offering a meaningful framework for understanding how physical attributes and customer sentiment relate to LEGO pricing. While limitations related to missingness, sample size, and potential selection bias remain, the staged approach provides a robust and interpretable analysis of the factors influencing retail price.
+This model balances explanatory strength, diagnostic stability, offering a meaningful framework for understanding how physical attributes and customer sentiment relate to LEGO pricing. While limitations related to missingness, sample size, and potential selection bias remain, the staged approach provides a robust and interpretable analysis of the factors influencing retail price.
 
 These results should be interpreted with several limitations in mind. Requiring complete data reduced the analysis from the original 1,079 sets to only 61 observations in Stage 2, which may limit how well the final model represents the full LEGO catalog. The diagnostic plots also identified unusual residuals and a potentially high‑leverage observation. In addition, the analysis identifies associations rather than causal effects, and the relationships observed in the selected sample may not generalize to all LEGO sets.
 
